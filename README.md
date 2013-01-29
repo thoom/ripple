@@ -4,8 +4,8 @@ Ripple
 __NOTE: Ripple is still currently under active development, while I migrate existing functionality from Giply__
 
 Git-based deployment server written in Ruby. This server is meant as a more robust replacement for the [Giply](http://github.com/thoom/giply-server)
-server written in PHP. It is built on Sinatra and will update Git projects built in both Ruby (updating dependencies using
-[Bundler](http://gembundler.com)) and PHP (updating dependencies using [Composer](https://getcomposer.org)).
+server. It is built on Sinatra and will update Git projects. It provides additional functionality built in both Ruby
+(updating dependencies using [Bundler](http://gembundler.com)) and PHP (updating dependencies using [Composer](https://getcomposer.org)).
 
 This server allows me to have a single domain (i.e. deploy.myserver.com) that I can use to manage POST deployments for all
 of my projects on the server.
