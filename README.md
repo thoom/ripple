@@ -39,9 +39,9 @@ Assumptions
     * *project_name* is the name of the working directory (in your /var/www folder).
     * *security_hash* is by default a simple sha1 hash of the string `#{parent_dir}/#{project_name}`. To provide your own
     security hash, you can add a hash object with the project name as a key in your ripple_config.yml file:
-
-          hash:
-            mysite: abc123456
+    
+		    hash:
+		      mysite: abc123456
 
     So an example of a POST url for Bitbucket or Github for my server:
 
