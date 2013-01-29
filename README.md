@@ -1,4 +1,11 @@
 Ripple
 ======
 
-Git-based deployment server written in Ruby and built on top of Sinatra
+Git-based deployment server written in Ruby
+
+
+To Run
+------
+
+ruby server.rb
+
