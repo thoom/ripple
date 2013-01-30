@@ -10,5 +10,5 @@ HEAD
 
   puts `git reset --hard HEAD`
   puts `git pull origin master`
-  puts `bundle install`
+  puts `sudo bundle install`
 end

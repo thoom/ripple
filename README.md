@@ -71,17 +71,30 @@ There is an assumption here that you know how to set up Apache or Nginx for pret
 for my projects, but even with Apache I like putting my rewrite rules in a vhost file over .htaccess. For that reason,
 I'm not including an .htaccess file in the public directory.
 
- 1. To install, first just check out the code to the directory of your choice. I use something like */var/www/deploy*.
+### Prerequisites
+
+ 1. Ruby and Gem installed : `sudo apt-get install make ruby1.9.3 build-essential libcurl4-openssl-dev zlib1g-dev`.
+ 2. Bundler installed: `sudo gem install bundle`.
+ 3. Web user has sudo access to bundle (i.e. in a sudoers.d file):
+
+        Cmnd_Alias RIPPLEBUNDLE=/usr/local/bin/bundle
+        www-data ALL=NOPASSWD: RIPPLEBUNDLE
+
+
+### Ripple installer
+ 1. Log in as your web user: i.e. `sudo su - www-data`.
+ 2. To install, first just check out the code to the directory of your choice. I use something like */var/www/deploy*.
 
         git init
         git remote add origin git://github.com/thoom/ripple.git
         git pull origin master
 
- 2. Run the install script using __self-update__. Make sure that the user running this file has permission to write to
-    this directory.
- 3. Now, anytime you want to update to the latest version, just run:
+ 3. Run the install script using __self-update__.
+ 4. Now, anytime you want to update to the latest version, just run:
 
         self-update
+
+ 5. Depending on your server, you may need to restart it.
 
 Command line console
 --------------------
