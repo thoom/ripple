@@ -67,9 +67,9 @@ Assumptions
 Installation
 ------------
 
-Note: There is an assumption here that you know how to set up Apache or Nginx for pretty URLs. I personally use Nginx
+There is an assumption here that you know how to set up Apache or Nginx for pretty URLs. I personally use Nginx
 for my projects, but even with Apache I like putting my rewrite rules in a vhost file over .htaccess. For that reason,
-I'm not including an .htaccess file in the web directory.
+I'm not including an .htaccess file in the public directory.
 
  1. To install, first just check out the code to the directory of your choice. I use something like */var/www/deploy*.
 
@@ -77,18 +77,25 @@ I'm not including an .htaccess file in the web directory.
         git remote add origin git://github.com/thoom/ripple.git
         git pull origin master
 
- 2. Run the install script using __ruby self-update.rb__. Make sure that the user running this file has permission to write to
+ 2. Run the install script using __self-update__. Make sure that the user running this file has permission to write to
     this directory.
  3. Now, anytime you want to update to the latest version, just run:
 
-        ruby self-update.rb
+        self-update
 
-To run the server from the command line
----------------------------------------
+Command line console
+--------------------
+In addition to the server that automatically updates a site, there are a few console commands that you can run:
 
-You can run the server from the command line:
+### Update
 
-    ruby console.rb pull mysite
+To update a site (note that since this isn't a POST, there is no payload!):
+
+    console up mysite
+
+To restore to the last backup (if one exists):
+
+    console restore mysite
 
 TODO (in no particular order)
 -----------------------------

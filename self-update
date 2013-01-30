@@ -1,0 +1,14 @@
+#! /usr/bin/env ruby
+
+if __FILE__ == $0
+  puts <<HEAD
+*---------------------*
+| Ripple Self Updater |
+*---------------------*
+
+HEAD
+
+  puts `git reset --hard HEAD`
+  puts `git pull origin master`
+  puts `bundle install`
+end
