@@ -23,9 +23,11 @@ of executable strings that will be run after the git repo has been updated and c
 you could remove a cache directory and re-add it.
 
     post_exec:
-        - rm -rf cache
-        - mkdir cache
-        - chmod 777 cache
+      - rm -rf cache
+      - mkdir cache
+      - chmod 777 cache
+    final_exec:
+      - sudo /etc/init.d/thin restart
 
 ####Note
 All of the post_exec scripts are run as command line scripts and are not included in the server script itself.
@@ -35,17 +37,19 @@ Assumptions
 
  1. The server expects to be located in a subdirectory of the same parent directory as the projects it manages (for instance, inside of `/var/www`).
  2. The server web root should be the included `public` directory.
- 3. The server expects pretty URLs, in the format: `project_name/security_hash`.
+ 3. The server uses HTTP Basic Authentication. Preferrably, you should use Basic Authentication over SSL.
+ 4. The server expects pretty URLs, in the format: `project_name/security_secret`.
     * *project_name* is the name of the working directory (in your /var/www folder).
-    * *security_hash* is by default a simple sha1 hash of the string `#{parent_dir}/#{project_name}`. To provide your own
-    security hash, you can add a hash object with the project name as a key in your ripple_config.yml file:
+    * *security_secret* is a secret you set on a per project basis in your ripple_config.yml file. A sample ripple_config file:
     
-		    hash:
-		      mysite: abc123456
+		    username: myuser
+		    password: secretpassword
+		    secret:
+		      myproject: abc123456
 
     So an example of a POST url for Bitbucket or Github for my server:
 
-        http://deploy.myserver.com/mysite/ff56634640221a6b2716d276361162cd
+        https://myuser:secretpassword@deploy.myserver.com/myproject/abc123456
 
     The server script is built around projects that I have on Github and Bitbucket. Both of these providers POST to the server
     with a json string to the _payload_ key. The server stores the JSON string in a file: **ripple_payload.json**. This provides
@@ -104,20 +108,19 @@ In addition to the server that automatically updates a site, there are a few con
 
 To update a site (note that since this isn't a POST, there is no payload!):
 
-    console up mysite
+    console --update mysite
 
 To restore to the last backup (if one exists):
 
-    console restore mysite
+    console --restore mysite
 
 TODO (in no particular order)
 -----------------------------
 
-1. Complete migration of Giply functionality
-2. Added deployment logging
-3. Add console script for manually deployment
-4. Convert to using Sinatra for Rack-compatibility
-5. Update documentation with FAQs
+1. Add locking, so if a request comes for a project while another is still processing, it won't write on top of the other
+2. Add configuration for number of stored backups (with a basic default)
+2. Add console script for restoring from backup
+3. Update documentation with FAQs
 
 References
 ----------

@@ -1,4 +1,62 @@
 #! /usr/bin/env ruby
+load 'lib.rb'
+
+class Console
+  @root, @parent, @args, @project = nil
+
+  def initialize(args)
+    @root   = File.dirname(File.expand_path(__FILE__))
+    @parent = File.dirname(@root)
+    @args   = args
+  end
+
+  def update
+    project_ripple = project_dir + '/ripple.yml'
+
+    opts = (File.exists? project_ripple) ? get_config(project_ripple) : {}
+    opts = {} unless opts
+
+    opts[:console] = true
+
+    load 'ripple.rb'
+    r = Ripple.new(project_dir, opts)
+    r.process
+  end
+
+  def restore
+    puts 'Coming soon!'
+  end
+
+  def project_dir
+    if @project == nil
+      stop 'Project name missing' unless @args.length > 0
+
+      proj = @parent + '/' + @args[0]
+      stop 'Invalid project' unless (File.exists? proj) || (File.directory? proj + '/.git')
+
+      @project = proj
+    end
+
+    @project
+  end
+end
+
+def console_help
+  puts <<HELP
+Commands
+--------
+
+--update {SITE}   Updates the current site. Calls the same code as the web application, except it does not send a payload.
+--restore {SITE}  Restores the site to the last backup (if one exists).
+--help            Shows this help menu.
+
+Examples
+--------
+console --update myproj
+console --restore myproj
+
+HELP
+end
 
 if __FILE__ == $0
   puts <<HEAD
@@ -6,6 +64,26 @@ if __FILE__ == $0
 | Ripple Console |
 *----------------*
 
-Coming soon!
 HEAD
+
+  unless ARGV.empty?
+    args    = ARGV.dup
+    command = args.shift
+
+    console = Console.new args
+    case command
+    when '--update'
+      console.update
+    when '--restore'
+      console.restore
+    when '--help'
+      console_help
+    else
+      stop 'Whatcha doing? Use --help for advice.'
+    end
+
+    exit
+  end
+
+  console_help
 end

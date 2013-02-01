@@ -1,61 +1,52 @@
-require 'digest/sha1'
-require 'webrick'
-require 'yaml'
+require 'sinatra'
 
-root   = File.dirname(__FILE__)
-parent = File.dirname(root)
+load 'lib.rb'
 
-config_file = "#{ root }/ripple_config.yml"
-unless File.exists? config_file
-  res.status = 500
-  res.body   = 'Configuration file missing'
-  exit
+root = File.dirname(__FILE__)
+
+set parent: File.dirname(root)
+set ripple: get_config("#{ root }/ripple_config.yml")
+
+# Basic authentication
+use Rack::Auth::Basic, 'Ripple Protected Area' do |username, password|
+  settings.ripple && username == settings.ripple['username'] && password == settings.ripple['password']
 end
 
-config = YAML.load_file config_file
-port   = (config && config.has_key?('port')) ? config['port'] : 8000
-server = WEBrick::HTTPServer.new :Port => port, :DocumentRoot => root
-
-server.mount_proc '/' do |req, res|
-  project, hash = req.path[1..-1].split('/')
-
-  if project == nil && hash == nil
-    res.body = 'Ripple deployment server'
-    exit
-  end
-
-  if project == nil || project.empty?
-    res.status = 400
-    res.body   = 'Missing project to pull'
-    exit
-  end
-
-  if hash == nil || hash.empty?
-    res.status = 400
-    res.body   = 'Missing security hash'
-  end
-
-  project_dir = "#{parent}/#{project}"
-  vhash       = (config && config.has_key?('hash') && config['hash'].has_key?(project)) ? config['hash'][project] : Digest::SHA1.hexdigest(project_dir)
-
-  unless hash == vhash
-    res.status = 400
-    res.body   = 'Invalid security hash'
-    exit
-  end
-
-  unless File.directory? "#{project_dir}/.git"
-    res.status = 400
-    res.body   = 'Invalid project name'
-    exit
-  end
-
-  load parent + '/process.rb'
-  ripple_process(project_dir, {})
+configure :production do
+  disable :raise_errors
 end
 
-trap 'INT' do
-  server.shutdown
+get '/' do
+  'Ripple deployment server'
 end
 
-server.start
+post '/:project/:secret' do |project, secret|
+  halt 400, 'Missing payload' unless params[:payload]
+
+  project_dir = "#{ settings.parent }/#{ project }"
+  vsecret     = (settings.ripple.has_key?('secret') && settings.ripple['secret'].has_key?(project)) ? settings.ripple['secret'][project] : nil
+
+  halt 400, 'Invalid security secret' unless secret == vsecret
+  halt 400, 'Invalid project name' unless File.directory? "#{ project_dir }/.git"
+
+  project_ripple = "#{ project_dir }/ripple.yml"
+
+  opts = (File.exists? project_ripple) ? get_config(project_ripple) : {}
+  opts = {} unless opts
+
+  File.write("#{ project_dir }/ripple_payload.json", params[:payload])
+
+  load 'ripple.rb'
+  r = Ripple.new(project_dir, opts)
+  r.process
+
+  'OK'
+end
+
+not_found do
+  'Page not found!'
+end
+
+error do
+  "Sorry, an error occurred:\n" + env['sinatra.error'].name
+end
