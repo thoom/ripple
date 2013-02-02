@@ -31,7 +31,7 @@ HEAD
     args    = ARGV.dup
     command = args.shift
 
-    console = Console.new args
+    console = Ripple::Console.new args
     case command
     when '--update'
       console.update

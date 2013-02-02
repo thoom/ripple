@@ -1,12 +1,12 @@
 require 'sinatra'
 require_relative 'utilities'
 
-root = File.dirname(__FILE__)
+root = File.dirname(File.dirname(__FILE__))
 set parent: File.dirname(root)
-set ripple: Utilities.get_config("#{ settings.parent }/ripple_config.yml")
+set ripple: Ripple::Utilities.get_config("#{ root }/ripple_config.yml")
 
 # Basic authentication
-use Rack::Auth::Basic, 'Git Protected Area' do |username, password|
+use Rack::Auth::Basic, 'Ripple Protected Area' do |username, password|
   settings.ripple && username == settings.ripple['username'] && password == settings.ripple['password']
 end
 
@@ -29,13 +29,13 @@ post '/:project/:secret' do |project, secret|
 
   project_ripple = "#{ project_dir }/ripple.yml"
 
-  opts = (File.exists? project_ripple) ? Utilities.get_config(project_ripple) : {}
+  opts = (File.exists? project_ripple) ? Ripple::Utilities.get_config(project_ripple) : {}
   opts = {} unless opts
 
   File.write("#{ project_dir }/ripple_payload.json", params[:payload])
 
   require_relative 'git'
-  r = Git.new(project_dir, opts)
+  r = Ripple::Git.new(project_dir, opts)
   r.process
 
   'OK'
