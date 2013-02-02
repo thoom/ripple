@@ -2,12 +2,8 @@ require 'net/http'
 require 'fileutils'
 require 'tempfile'
 
-class Ripple
-
-  @directory
-  @opts
-  @log
-  @console
+class Git
+  @directory, @opts, @log, @console = nil
 
   def initialize(directory, opts)
     @directory = directory
@@ -15,7 +11,13 @@ class Ripple
     @log       = Tempfile.new('ripple-server')
     @console   = (opts.has_key?(:console) && opts[:console] == true)
 
-    @log << DateTime.now.to_s
+    h = 'Git deployment: ' + DateTime.now.to_s
+    l = '-' * (h.length)
+
+    o = "#{ h }\n#{ l }\n"
+
+    puts o if @console
+    @log << o
   end
 
   def process
@@ -94,5 +96,4 @@ class Ripple
     @log.close
     @log.unlink
   end
-
 end
