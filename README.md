@@ -3,12 +3,12 @@ Ripple
 
 __NOTE: Ripple is still currently under active development, while I migrate existing functionality from Giply__
 
-Git-based deployment server written in Ruby. This server is meant as a more robust replacement for the [Giply](http://github.com/thoom/giply-server)
+Rippls is a git-based deployment server written in Ruby. This server is meant as a more robust replacement for the [Giply](http://github.com/thoom/giply-server)
 server. It is built on Sinatra and will update Git projects. It provides additional functionality built in both Ruby
 (updating dependencies using [Bundler](http://gembundler.com)) and PHP (updating dependencies using [Composer](https://getcomposer.org)).
 
 This server allows me to have a single domain (i.e. deploy.myserver.com) that I can use to manage POST deployments for all
-of my projects on the server.
+of my projects on the server. For larger projects with multiple collaborators, I would recommend using a real CI server.
 
 What does it do?
 ----------------
@@ -28,9 +28,6 @@ you could remove a cache directory and re-add it.
       - chmod 777 cache
     final_exec:
       - sudo /etc/init.d/thin restart
-
-####Note
-All of the post_exec scripts are run as command line scripts and are not included in the server script itself.
 
 Assumptions
 -----------
@@ -62,18 +59,16 @@ Assumptions
         sudo su www-data
         cd /var/www/mysite
         git init
-        git remote add origin git@bitbucket.org:myacct/myacct.git
+        git remote add origin git@bitbucket.org:myacct/myrepo.git
         git pull origin master
 
     If you get an error pulling the origin, it probably means that the SSH key is missing or not approved to access the repo.
     However, if you can successfully pull the origin using your web user (like `www-data`), Ripple should work fine.
 
+  5. You know how to set up a webserver in Ruby. I use an Nginx + thin set up. Since there are so many different preferences and options, it's up to you to figure out how you want to host this service on your server.
+
 Installation
 ------------
-
-There is an assumption here that you know how to set up Apache or Nginx for pretty URLs. I personally use Nginx
-for my projects, but even with Apache I like putting my rewrite rules in a vhost file over .htaccess. For that reason,
-I'm not including an .htaccess file in the public directory.
 
 ### Prerequisites
 
@@ -119,8 +114,11 @@ TODO (in no particular order)
 
 1. Add locking, so if a request comes for a project while another is still processing, it won't write on top of the other
 2. Add configuration for number of stored backups (with a basic default)
-2. Add console script for restoring from backup
-3. Update documentation with FAQs
+3. Add console script for restoring from backup
+4. Update documentation with sample ripple configuration options
+5. Add environment specific configuration support
+6. Add overrides for composer options, including using a central composer.phar file
+7. Add overrides for items like the git configuration (using a branch instead of master for instance)
 
 References
 ----------
