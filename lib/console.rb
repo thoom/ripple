@@ -10,12 +10,26 @@ module Ripple
       @args   = args
     end
 
+    def init_site
+
+      repo = "git@bitbucket.org:myacct/myrepo.git"
+
+      Dir.chdir project_dir
+      `git init`
+      `git remote add origin #{ repo }`
+      `git pull origin master`
+    end
+
+    def self_update
+      puts "Updating Ripple files"
+      puts `git reset --hard HEAD`
+      puts `git pull origin master`
+      puts `sudo bundle install`
+    end
+
     def update
       project_ripple = project_dir + '/ripple.yml'
-
-      opts = (File.exists? project_ripple) ? Utilities.get_config(project_ripple) : {}
-      opts = {} unless opts
-
+      opts           = Utilities.get_config(project_ripple)
       opts[:console] = true
 
       require_relative 'git'

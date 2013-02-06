@@ -37,6 +37,8 @@ HEAD
       console.update
     when '--restore'
       console.restore
+    when '--self-update'
+      console.self_update
     when '--help'
       console_help
     else

@@ -7,7 +7,7 @@ set ripple: Ripple::Utilities.get_config("#{ root }/ripple_config.yml")
 
 # Basic authentication
 use Rack::Auth::Basic, 'Ripple Protected Area' do |username, password|
-  settings.ripple && username == settings.ripple['username'] && password == settings.ripple['password']
+  settings.ripple && username == settings.ripple[:username] && password == settings.ripple[:password]
 end
 
 configure :production do
@@ -29,9 +29,7 @@ post '/:project/:secret' do |project, secret|
 
   project_ripple = "#{ project_dir }/ripple.yml"
 
-  opts = (File.exists? project_ripple) ? Ripple::Utilities.get_config(project_ripple) : {}
-  opts = {} unless opts
-
+  opts = Ripple::Utilities.get_config(project_ripple, settings.ripple)
   File.write("#{ project_dir }/ripple_payload.json", params[:payload])
 
   require_relative 'git'

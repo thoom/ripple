@@ -21,15 +21,27 @@ module Ripple
     end
 
     def process
-      temp_dir = @directory + '_temp'
-      back_dir = @directory + '_backup'
+      temp_dir      = @directory + '_temp'
+      backup_prefix = @directory + '_backup'
+      backup_date   = DateTime.now.strftime('%y%m%dT%H%M%S')
 
       if Dir.exists? temp_dir
         FileUtils.rm_r temp_dir
       end
 
-      if Dir.exists? back_dir
-        FileUtils.rm_r back_dir
+      backups = Dir.glob(backup_prefix + '*')
+
+      if backups.length > @opts[:backups]
+        extra = backups.length - @opts[:backups]
+        backups.slice(0...extra).each do |b|
+          puts "Deleted: #{ b }"
+          FileUtils.rm_r b
+        end
+      end
+
+      backup_dir = "#{ backup_prefix }_#{ backup_date }"
+      if Dir.exists? backup_dir
+        FileUtils.rm_r backup_dir
       end
 
       FileUtils.cp_r @directory, temp_dir
@@ -61,19 +73,19 @@ module Ripple
       end
 
       # Post executable files
-      if @opts.has_key? 'post_exec'
-        @opts['post_exec'].each do |e|
+      if @opts.has_key? :post_exec
+        @opts[:post_exec].each do |e|
           io_log e
         end
       end
 
       # Move the current directory to the backup directory and move the temp directory to the current directory's place
-      FileUtils.move @directory, back_dir
+      FileUtils.move @directory, backup_dir
       FileUtils.move temp_dir, @directory
 
-      if @opts.has_key? 'final_exec'
+      if @opts.has_key? :final_exec
         Dir.chdir @directory
-        @opts['final_exec'].each do |e|
+        @opts[:final_exec].each do |e|
           io_log e
         end
       end

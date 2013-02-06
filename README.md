@@ -22,26 +22,27 @@ This YAML-based configuration file can overwrite basic information such as the l
 of executable strings that will be run after the git repo has been updated and composer has been run. For example,
 you could remove a cache directory and re-add it.
 
-    post_exec:
+    :post_exec:
       - rm -rf cache
       - mkdir cache
       - chmod 777 cache
-    final_exec:
+    :final_exec:
       - sudo /etc/init.d/thin restart
 
 Assumptions
 -----------
 
- 1. The server expects to be located in a subdirectory of the same parent directory as the projects it manages (for instance, inside of `/var/www`).
- 2. The server web root should be the included `public` directory.
- 3. The server uses HTTP Basic Authentication. Preferrably, you should use Basic Authentication over SSL.
- 4. The server expects pretty URLs, in the format: `project_name/security_secret`.
+ 1. You know how to set up a webserver in Ruby. I use an Nginx + thin set up. Since there are so many different preferences and options, it's up to you to figure out how you want to host this service on your server.
+ 2. The server expects to be located in a subdirectory of the same parent directory as the projects it manages (for instance, inside of `/var/www`).
+ 3. The server web root should be the included `public` directory.
+ 4. The server uses HTTP Basic Authentication. Preferrably, you should use Basic Authentication over SSL.
+ 5. The server expects pretty URLs, in the format: `project_name/security_secret`.
     * *project_name* is the name of the working directory (in your /var/www folder).
     * *security_secret* is a secret you set on a per project basis in your ripple_config.yml file. A sample ripple_config file:
     
-		    username: myuser
-		    password: secretpassword
-		    secret:
+		    :username: myuser
+		    :password: secretpassword
+		    :secret:
 		      myproject: abc123456
 
     So an example of a POST url for Bitbucket or Github for my server:
@@ -57,15 +58,10 @@ Assumptions
     to the server. As an example:
 
         sudo su www-data
-        cd /var/www/mysite
-        git init
-        git remote add origin git@bitbucket.org:myacct/myrepo.git
-        git pull origin master
+        console --init mysite --repo git@bitbucket.org:myacct/myrepo.git
 
     If you get an error pulling the origin, it probably means that the SSH key is missing or not approved to access the repo.
     However, if you can successfully pull the origin using your web user (like `www-data`), Ripple should work fine.
-
-  5. You know how to set up a webserver in Ruby. I use an Nginx + thin set up. Since there are so many different preferences and options, it's up to you to figure out how you want to host this service on your server.
 
 Installation
 ------------
@@ -79,7 +75,6 @@ Installation
         Cmnd_Alias RIPPLEBUNDLE=/usr/local/bin/bundle
         www-data ALL=NOPASSWD: RIPPLEBUNDLE
 
-
 ### Ripple installer
  1. Log in as your web user: i.e. `sudo su - www-data`.
  2. To install, first just check out the code to the directory of your choice. I use something like */var/www/deploy*.
@@ -88,10 +83,11 @@ Installation
         git remote add origin git://github.com/thoom/ripple.git
         git pull origin master
 
- 3. Run the install script using __self-update__.
+ 3. Run the install script using `console --self-update`.
  4. Now, anytime you want to update to the latest version, just run:
 
-        self-update
+    git pull origin master
+    console --self-update
 
  5. Depending on your server, you may need to restart it.
 
@@ -99,15 +95,21 @@ Command line console
 --------------------
 In addition to the server that automatically updates a site, there are a few console commands that you can run:
 
-### Update
+To initialize a repo:
+
+    console --init mysite --repo git@bitbucket.org:myaccount/mysite.git
+
+To restore to a stored backup (if one exists):
+
+    console --restore mysite
+
+To update to the latest ripple version:
+
+    console --self-update
 
 To update a site (note that since this isn't a POST, there is no payload!):
 
     console --update mysite
-
-To restore to the last backup (if one exists):
-
-    console --restore mysite
 
 TODO (in no particular order)
 -----------------------------
