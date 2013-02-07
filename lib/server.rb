@@ -1,13 +1,12 @@
 require 'sinatra'
 require_relative 'utilities'
 
-root = File.dirname(File.dirname(__FILE__))
-set parent: File.dirname(root)
-set ripple: Ripple::Utilities.get_config("#{ root }/ripple_config.yml")
+set parent: Ripple::Utilities.parent
+set ripple: Ripple::Utilities.get_ripple_config
 
 # Basic authentication
 use Rack::Auth::Basic, 'Ripple Protected Area' do |username, password|
-  settings.ripple && username == settings.ripple[:username] && password == settings.ripple[:password]
+  settings.ripple && username == settings.ripple[:username] && Ripple::Utilities.hash(password) == settings.ripple[:password]
 end
 
 configure :production do
@@ -24,18 +23,14 @@ post '/:project/:secret' do |project, secret|
   project_dir = "#{ settings.parent }/#{ project }"
   vsecret     = (settings.ripple.has_key?('secret') && settings.ripple['secret'].has_key?(project)) ? settings.ripple['secret'][project] : nil
 
-  halt 400, 'Invalid security secret' unless secret == vsecret
+  halt 400, 'Invalid security secret' unless Ripple::Utilities.hash(secret) == vsecret
   halt 400, 'Invalid project name' unless File.directory? "#{ project_dir }/.git"
 
-  project_ripple = "#{ project_dir }/ripple.yml"
-
-  opts = Ripple::Utilities.get_config(project_ripple, settings.ripple)
-  File.write("#{ project_dir }/ripple_payload.json", params[:payload])
-
   require_relative 'git'
-  r = Ripple::Git.new(project_dir, opts)
+  r = Ripple::Git.new(project_dir, Ripple::Utilities.get_project_config(project))
   r.process
 
+  File.write("#{ project_dir }/payload.json", params[:payload])
   'OK'
 end
 

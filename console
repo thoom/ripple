@@ -6,9 +6,14 @@ def console_help
   puts <<HELP
 Commands
 --------
-
---update {SITE}   Updates the current site. Calls the same code as the web application, except it does not send a payload.
+--config {SITE}   Update a site's secret.
+--init {SITE}     Adds a site to be managed. If the site doesn't exist, or doesn't have a git repo, one can be created.
 --restore {SITE}  Restores the site to the last backup (if one exists).
+--update {SITE}   Updates the current site. Calls the same code as the web application, except it does not send a payload.
+
+--self-config     Change the Ripple username, password, stored backup number, etc.
+--self-update     Update to the latest Ripple version.
+
 --help            Shows this help menu.
 
 Examples
@@ -33,10 +38,16 @@ HEAD
 
     console = Ripple::Console.new args
     case command
+    when '--config'
+      console.site_config
+    when '--init'
+      console.site_init
     when '--update'
-      console.update
+      console.site_update
     when '--restore'
-      console.restore
+      console.site_restore
+    when '--self-config'
+      console.self_config
     when '--self-update'
       console.self_update
     when '--help'

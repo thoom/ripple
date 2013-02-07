@@ -4,13 +4,18 @@ require 'tempfile'
 
 module Ripple
   class Git
-    @directory, @opts, @log, @console = nil
+    @directory, @opts, @log, @console, @backup_prefix = nil
 
     def initialize(directory, opts)
       @directory = directory
       @opts      = opts
       @log       = Tempfile.new('ripple-server')
-      @console   = (opts.has_key?(:console) && opts[:console] == true)
+
+      @backup_date   = DateTime.now.strftime('%y%m%dT%H%M%S')
+      @backup_prefix = @directory + '_backup'
+      @backup_dir    = @backup_prefix + '_' + @backup_date
+
+      @console = (opts.has_key?(:console) && opts[:console] == true)
 
       h = 'Git deployment: ' + DateTime.now.to_s
       l = '-' * (h.length)
@@ -20,16 +25,20 @@ module Ripple
       @log << 'Ripple ' + o
     end
 
+    def clone
+      Dir.mkdir @backup_dir
+      Dir.chdir @backup_dir
+
+      io_log 'git init'
+      io_log "git remote add origin #{ @opts[:repo] }"
+
+      Dir.chdir @backup_dir
+
+      post_process @backup_dir
+    end
+
     def process
-      temp_dir      = @directory + '_temp'
-      backup_prefix = @directory + '_backup'
-      backup_date   = DateTime.now.strftime('%y%m%dT%H%M%S')
-
-      if Dir.exists? temp_dir
-        FileUtils.rm_r temp_dir
-      end
-
-      backups = Dir.glob(backup_prefix + '*')
+      backups = Dir.glob(@backup_prefix + '*')
 
       if backups.length > @opts[:backups]
         extra = backups.length - @opts[:backups]
@@ -39,15 +48,19 @@ module Ripple
         end
       end
 
-      backup_dir = "#{ backup_prefix }_#{ backup_date }"
-      if Dir.exists? backup_dir
-        FileUtils.rm_r backup_dir
+      if Dir.exists? @backup_dir
+        FileUtils.rm_r @backup_dir
       end
 
-      FileUtils.cp_r @directory, temp_dir
-      Dir.chdir temp_dir
+      FileUtils.cp_r @directory, @backup_dir
 
+      Dir.chdir @backup_dir
       io_log 'git reset --hard HEAD'
+
+      post_process @backup_dir
+    end
+
+    def post_process(temp_dir)
       io_log 'git pull origin master'
 
       # For PHP projects using composer
@@ -80,9 +93,10 @@ module Ripple
       end
 
       # Move the current directory to the backup directory and move the temp directory to the current directory's place
-      FileUtils.move @directory, backup_dir
-      FileUtils.move temp_dir, @directory
 
+      FileUtils.rm_r @directory if File.exists? @directory
+
+      File.symlink(temp_dir, @directory)
       if @opts.has_key? :final_exec
         Dir.chdir @directory
         @opts[:final_exec].each do |e|

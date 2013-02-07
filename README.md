@@ -41,16 +41,16 @@ Assumptions
     * *security_secret* is a secret you set on a per project basis in your ripple_config.yml file. A sample ripple_config file:
     
 		    :username: myuser
-		    :password: secretpassword
+		    :password: hash of secretpassword
 		    :secret:
-		      myproject: abc123456
+		      myproject: hash of abc123456
 
     So an example of a POST url for Bitbucket or Github for my server:
 
         https://myuser:secretpassword@deploy.myserver.com/myproject/abc123456
 
     The server script is built around projects that I have on Github and Bitbucket. Both of these providers POST to the server
-    with a json string to the _payload_ key. The server stores the JSON string in a file: **ripple_payload.json**. This provides
+    with a json string to the _payload_ key. The server stores the JSON string in a file: **payload.json**. This provides
     any of the *post_exec* scripts access to the payload data for processing.
 
  4. Any project that you want to have updated by Ripple needs to have its git repo initialized and origin added. Connecting to the
@@ -58,7 +58,7 @@ Assumptions
     to the server. As an example:
 
         sudo su www-data
-        console --init mysite --repo git@bitbucket.org:myacct/myrepo.git
+        console --init mysite (it will prompt you for various data it needs)
 
     If you get an error pulling the origin, it probably means that the SSH key is missing or not approved to access the repo.
     However, if you can successfully pull the origin using your web user (like `www-data`), Ripple should work fine.
@@ -97,7 +97,7 @@ In addition to the server that automatically updates a site, there are a few con
 
 To initialize a repo:
 
-    console --init mysite --repo git@bitbucket.org:myaccount/mysite.git
+    console --init mysite (it will prompt for the data it needs)
 
 To restore to a stored backup (if one exists):
 
@@ -107,20 +107,28 @@ To update to the latest ripple version:
 
     console --self-update
 
+To change the ripple username, password, stored backup number:
+
+    console --self-config (asks for the password, so not stored in bash history)
+
 To update a site (note that since this isn't a POST, there is no payload!):
 
     console --update mysite
+
+To update a site's secret:
+
+    console --config mysite (asks for the site secret, so not stored in bash history)
 
 TODO (in no particular order)
 -----------------------------
 
 1. Add locking, so if a request comes for a project while another is still processing, it won't write on top of the other
-2. Add configuration for number of stored backups (with a basic default)
-3. Add console script for restoring from backup
-4. Update documentation with sample ripple configuration options
-5. Add environment specific configuration support
-6. Add overrides for composer options, including using a central composer.phar file
-7. Add overrides for items like the git configuration (using a branch instead of master for instance)
+2. Add console options to build and update the ripple configuration
+3. Add console option to initialize a project to be managed by ripple (would include setting a secret)
+5. Add console script for restoring from backup
+6. Update documentation with sample ripple configuration options
+7. Add overrides for composer options, including using a central composer.phar file
+8. Add overrides for items like the git configuration (using a branch instead of master for instance)
 
 References
 ----------
