@@ -6,10 +6,10 @@ def console_help
   puts <<HELP
 Commands
 --------
---config {SITE}   Update a site's secret.
---init {SITE}     Adds a site to be managed. If the site doesn't exist, or doesn't have a git repo, one can be created.
+--config  {SITE}  Update a site's secret.
+--init    {SITE}  Adds a site to be managed. If the site doesn't exist, or doesn't have a git repo, one can be created.
 --restore {SITE}  Restores the site to the last backup (if one exists).
---update {SITE}   Updates the current site. Calls the same code as the web application, except it does not send a payload.
+--update  {SITE}  Updates the current site. Calls the same code as the web application, except it does not send a payload.
 
 --self-config     Change the Ripple username, password, stored backup number, etc.
 --self-update     Update to the latest Ripple version.
@@ -53,7 +53,7 @@ HEAD
     when '--help'
       console_help
     else
-      stop 'Whatcha doing? Use --help for advice.'
+      Ripple::Utilities.stop 'Whatcha doing? Use --help for advice.'
     end
 
     exit

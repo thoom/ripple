@@ -12,8 +12,8 @@ module Ripple
       @log       = Tempfile.new('ripple-server')
 
       @backup_date   = DateTime.now.strftime('%y%m%dT%H%M%S')
-      @backup_prefix = @directory + '_backup'
-      @backup_dir    = @backup_prefix + '_' + @backup_date
+      @backup_prefix = @directory + '_'
+      @backup_dir    = @backup_prefix + @backup_date
 
       @console = (opts.has_key?(:console) && opts[:console] == true)
 

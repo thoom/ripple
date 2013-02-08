@@ -11,12 +11,13 @@ module Ripple
     end
 
     def self_config
+      puts 'Configuring Ripple'
+      puts "------------------\n"
+
       config = Utilities.get_ripple_config
 
       print 'Do you want to change the username? [yN] '
-      result = STDIN.gets
-
-      if %w(Y YES YEP YEAH YESSIR).index result.strip.upcase
+      if %w(Y YES YEP YEAH YESSIR).index STDIN.gets.strip.upcase
         username = ''
 
         while username.empty?
@@ -28,9 +29,7 @@ module Ripple
       end
 
       print 'Do you want to change the password? [yN] '
-      result = STDIN.gets
-
-      if %w(Y YES YEP YEAH YESSIR).index result.strip.upcase
+      if %w(Y YES YEP YEAH YESSIR).index STDIN.gets.strip.upcase
         pass  = false
         vpass = true
 
@@ -63,9 +62,7 @@ module Ripple
       end
 
       print 'Do you want to change the number of site backups stored? [yN]'
-      result = STDIN.gets
-
-      if %w(Y YES YEP YEAH YESSIR).index result.strip.upcase
+      if %w(Y YES YEP YEAH YESSIR).index STDIN.gets.strip.upcase
         backup = ''
 
         while backup.empty?
@@ -84,23 +81,24 @@ module Ripple
     def self_update
       puts 'Updating Ripple files'
       puts "---------------------\n"
+
       puts `git reset --hard HEAD`
       puts `git pull origin master`
       puts `sudo bundle install`
 
       print 'Do you want to update the ripple config?? [yN]'
-      result = STDIN.gets
-
-      if %w(Y YES YEP YEAH YESSIR).index result.strip.upcase
+      if %w(Y YES YEP YEAH YESSIR).index STDIN.gets.strip.upcase
         self.self_config
       end
     end
 
     def site_config
-      print "Do you want to change the site secret for #{ project_name }? [yN] "
-      result = STDIN.gets
+      h = "Configuring #{ project_name }"
+      l = '-' * h.length
+      puts h + "\n" + l + "\n"
 
-      Utilities.stop 'Exiting without switching as requested' unless %w(Y YES YEP YEAH YESSIR).index result.strip.upcase
+      print "Do you want to change the site secret for #{ project_name }? [yN] "
+      Utilities.stop 'Exiting without switching as requested' unless %w(Y YES YEP YEAH YESSIR).index STDIN.gets.strip.upcase
 
       save_site_secret
     end
@@ -108,7 +106,6 @@ module Ripple
     def site_init
       h = "Initializing #{ project_name }"
       l = '-' * h.length
-
       puts h + "\n" + l + "\n"
 
       repo = ''
@@ -121,7 +118,7 @@ module Ripple
       save_site_secret
 
       parent = Utilities.parent
-      pd =  parent + '/' + project_name
+      pd     = parent + '/' + project_name
       if File.exists? pd
         print 'Do you want to use the existing folder? [yN] '
 
@@ -136,10 +133,49 @@ module Ripple
     end
 
     def site_restore
-      puts 'Coming soon!'
+      h = "Restoring #{ project_name }"
+      l = '-' * h.length
+      puts h + "\n" + l + "\n"
+
+      Utilities.stop 'Invalid project name' unless File.symlink? project_dir
+
+      paths = Dir.glob(project_dir + '_*')
+
+      Utilities.stop 'No backups to restore to!' unless paths.length > 1
+
+      real_path = File.readlink(project_dir)
+
+      i = 0
+      paths.each { |v| puts (i + 1).to_s + ': ' + File.basename(v) + (v == real_path ? ' <== current version' : ''); i += 1 }
+
+      path = ''
+      o    = ''
+      while path.empty?
+        print "Which backup do you want to restore to (1 - #{ i })? "
+        input = STDIN.gets.strip
+        o = input if Float(input) rescue ''
+
+        next if o.empty?
+        o = o.to_i
+        unless o < 1 || o > paths.length
+          path = paths[o - 1]
+          Utilities.stop "\nCurrent revision. Nothing to restore" if path == real_path
+
+          print "You are about to restore to '#{ File.basename(path) }'. Are you sure? [yN] "
+          path = '' unless %w(Y YES YEP YEAH YESSIR).index STDIN.gets.strip.upcase
+        end
+
+        FileUtils.rm_r project_dir if File.exists? project_dir
+
+        puts "\nProject restored to #{ File.basename(path) }." if File.symlink(path, project_dir)
+      end
     end
 
     def site_update
+      h = "Updating #{ project_name }"
+      l = '-' * h.length
+      puts h + "\n" + l + "\n"
+
       opts           = Utilities.get_project_config project_name
       opts[:console] = true
 

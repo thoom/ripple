@@ -4,7 +4,7 @@ Ripple
 __NOTE: Ripple is still currently under active development, while I migrate existing functionality from Giply__
 
 Rippls is a git-based deployment server written in Ruby. This server is meant as a more robust replacement for the [Giply](http://github.com/thoom/giply-server)
-server. It is built on Sinatra and will update Git projects. It provides additional functionality built in both Ruby
+server. It is built on Sinatra and will update Git projects. It provides additional functionality for projects built in both Ruby
 (updating dependencies using [Bundler](http://gembundler.com)) and PHP (updating dependencies using [Composer](https://getcomposer.org)).
 
 This server allows me to have a single domain (i.e. deploy.myserver.com) that I can use to manage POST deployments for all
@@ -86,8 +86,8 @@ Installation
  3. Run the install script using `console --self-update`.
  4. Now, anytime you want to update to the latest version, just run:
 
-    git pull origin master
-    console --self-update
+	    git pull origin master
+	    console --self-update
 
  5. Depending on your server, you may need to restart it.
 
@@ -123,12 +123,9 @@ TODO (in no particular order)
 -----------------------------
 
 1. Add locking, so if a request comes for a project while another is still processing, it won't write on top of the other
-2. Add console options to build and update the ripple configuration
-3. Add console option to initialize a project to be managed by ripple (would include setting a secret)
-5. Add console script for restoring from backup
-6. Update documentation with sample ripple configuration options
-7. Add overrides for composer options, including using a central composer.phar file
-8. Add overrides for items like the git configuration (using a branch instead of master for instance)
+2. Update documentation with sample ripple configuration options
+3. Add overrides for composer options, including using a central composer.phar file
+4. Add overrides for items like the git configuration (using a branch instead of master for instance)
 
 References
 ----------
