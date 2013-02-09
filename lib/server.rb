@@ -21,7 +21,7 @@ post '/:project/:secret' do |project, secret|
   halt 400, 'Missing payload' unless params[:payload]
 
   project_dir = "#{ settings.parent }/#{ project }"
-  vsecret     = (settings.ripple.has_key?('secret') && settings.ripple['secret'].has_key?(project)) ? settings.ripple['secret'][project] : nil
+  vsecret     = (settings.ripple.has_key?(:secret) && settings.ripple[:secret].has_key?(project)) ? settings.ripple[:secret][project] : nil
 
   halt 400, 'Invalid security secret' unless Ripple::Utilities.hash(secret) == vsecret
   halt 400, 'Invalid project name' unless File.directory? "#{ project_dir }/.git"
