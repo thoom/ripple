@@ -1,3 +1,3 @@
 require './lib/server'
 
-run Sinatra::Application
+run Ripple::Server

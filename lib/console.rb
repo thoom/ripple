@@ -88,7 +88,7 @@ module Ripple
 
       print 'Do you want to update the ripple config?? [yN]'
       if %w(Y YES YEP YEAH YESSIR).index STDIN.gets.strip.upcase
-        self.self_config
+        self_config
       end
     end
 

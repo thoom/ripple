@@ -18,7 +18,19 @@ module Ripple
     end
 
     def self.get_default_config
-      {backups: 3}
+      {
+          backups:  3,
+          composer: {
+              vendor:  'clean',
+              command: 'install',
+              source:  'dist',
+              flags:   '-o'
+          },
+          git: {
+              branch: 'master',
+              remote: 'origin'
+          }
+      }
     end
 
     def self.get_project_config(project_name, default = self.get_ripple_config)

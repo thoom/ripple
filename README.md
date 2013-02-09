@@ -22,6 +22,15 @@ This YAML-based configuration file can overwrite basic information such as the l
 of executable strings that will be run after the git repo has been updated and composer has been run. For example,
 you could remove a cache directory and re-add it.
 
+    :composer:
+      :path: /usr/local/bin/composer.phar   #If missing, composer will be downloaded to the folder
+      :vendor: clean                        #If vendor=clean, the vendor directly will be deleted and redownloaded
+      :command: install                     #Either "install" or "update"
+      :source: dist                         #Either "dist" or "source"
+      :flags: -o                            #Other flags
+    :git:
+      :branch: master                       #The name of the branch to pull from
+      :remote: origin                       #The name of the remote to pull from
     :post_exec:
       - rm -rf cache
       - mkdir cache
@@ -124,8 +133,6 @@ TODO (in no particular order)
 
 1. Add locking, so if a request comes for a project while another is still processing, it won't write on top of the other
 2. Update documentation with sample ripple configuration options
-3. Add overrides for composer options, including using a central composer.phar file
-4. Add overrides for items like the git configuration (using a branch instead of master for instance)
 
 References
 ----------

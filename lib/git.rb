@@ -49,12 +49,9 @@ module Ripple
         end
       end
 
-      path = (File.symlink? @directory)? File.readlink(@directory) : @directory
+      path = (File.symlink? @directory) ? File.readlink(@directory) : @directory
 
-      if Dir.exists? @backup_dir
-        FileUtils.rm_r @backup_dir
-      end
-
+      FileUtils.rm_r @backup_dir if Dir.exists? @backup_dir
       FileUtils.cp_r path, @backup_dir
 
       Dir.chdir @backup_dir
@@ -64,22 +61,20 @@ module Ripple
     end
 
     def post_process(temp_dir)
-      io_log 'git pull origin master'
+      io_log "git pull #{ @opts[:git][:remote] } #{ @opts[:git][:branch] }"
 
       # For PHP projects using composer
       if File.exists? 'composer.json'
-        composer = 'composer.phar'
+        composer = @opts[:composer].has_key?(:path) ? @opts[:composer][:path] : temp_dir + '/composer.phar'
         unless File.exists? composer
           c = Net::HTTP.get_response(URI.parse('http://getcomposer.org/installer')).body
           File.write(composer, c)
         end
 
-        if Dir.exists? 'vendor'
-          FileUtils.rm_r 'vendor'
-        end
+        FileUtils.rm_r 'vendor' if @opts[:composer][:vendor] == 'clean' && Dir.exists?('vendor')
 
-        io_log "php #{ composer } self-update"
-        io_log "php #{ composer } install --prefer-dist -o"
+        io_log "php #{ composer } self-update" if FileTest.writable? File.dirname(composer)
+        io_log "php #{ composer } #{ @opts[:composer][:command] } --prefer-#{ @opts[:composer][:source] } #{ @opts[:composer][:flags] }"
       end
 
       # For Ruby projects using bundler
