@@ -41,6 +41,7 @@ module Ripple
       backups = Dir.glob(@backup_prefix + '*')
 
       if backups.length > @opts[:backups]
+        backups.sort!
         extra = backups.length - @opts[:backups]
         backups.slice(0...extra).each do |b|
           puts "Deleted: #{ b }"
