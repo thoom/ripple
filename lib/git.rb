@@ -49,11 +49,13 @@ module Ripple
         end
       end
 
+      path = (File.symlink? @directory)? File.readlink(@directory) : @directory
+
       if Dir.exists? @backup_dir
         FileUtils.rm_r @backup_dir
       end
 
-      FileUtils.cp_r @directory, @backup_dir
+      FileUtils.cp_r path, @backup_dir
 
       Dir.chdir @backup_dir
       io_log 'git reset --hard HEAD'
@@ -94,7 +96,6 @@ module Ripple
       end
 
       # Move the current directory to the backup directory and move the temp directory to the current directory's place
-
       FileUtils.rm_r @directory if File.exists? @directory
 
       File.symlink(temp_dir, @directory)
