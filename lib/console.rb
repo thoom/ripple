@@ -61,7 +61,7 @@ module Ripple
         config[:password] = Utilities.hash pass
       end
 
-      print 'Do you want to change the number of site backups stored? [yN]'
+      print 'Do you want to change the number of site backups stored? [yN] '
       if %w(Y YES YEP YEAH YESSIR).index STDIN.gets.strip.upcase
         backup = ''
 
@@ -144,6 +144,7 @@ module Ripple
       Utilities.stop 'No backups to restore to!' unless paths.length > 1
 
       real_path = File.readlink(project_dir)
+      paths.sort!
 
       i = 0
       paths.each { |v| puts (i + 1).to_s + ': ' + File.basename(v) + (v == real_path ? ' <== current version' : ''); i += 1 }
