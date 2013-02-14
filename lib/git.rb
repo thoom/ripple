@@ -111,6 +111,7 @@ module Ripple
 
         @log << line
       end
+      io.close
     end
 
     def save_log(filename)
