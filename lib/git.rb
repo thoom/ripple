@@ -87,13 +87,13 @@ module Ripple
       if @opts.has_key? :post_exec
         msg = 'Running post_exec scripts...'
         puts msg if @console
-        @log << msg
+        @log << msg + "\n"
 
         @opts[:post_exec].each do |e|
           Dir.chdir @backup_dir
 
           puts e if @console
-          @log << e
+          @log << e + "\n"
 
           io_log e
         end
@@ -106,12 +106,12 @@ module Ripple
       if @opts.has_key? :final_exec
         msg = 'Running final_exec scripts...'
         puts msg if @console
-        @log << msg
+        @log << msg + "\n"
 
         Dir.chdir @directory
         @opts[:final_exec].each do |e|
           puts e if @console
-          @log << e
+          @log << e + "\n"
 
           io_log e
         end
@@ -121,7 +121,7 @@ module Ripple
     end
 
     def io_log(command)
-      io = IO.popen "#{ command } 2>&1"
+      io = IO.popen "#{ command }"
       while (line = io.gets)
         puts line if @console
 
