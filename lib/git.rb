@@ -85,7 +85,16 @@ module Ripple
 
       # Post executable files
       if @opts.has_key? :post_exec
+        msg = 'Running post_exec scripts...'
+        puts msg if @console
+        @log << msg
+
         @opts[:post_exec].each do |e|
+          Dir.chdir @backup_dir
+
+          puts e if @console
+          @log << e
+
           io_log e
         end
       end
@@ -95,8 +104,15 @@ module Ripple
 
       File.symlink(temp_dir, @directory)
       if @opts.has_key? :final_exec
+        msg = 'Running final_exec scripts...'
+        puts msg if @console
+        @log << msg
+
         Dir.chdir @directory
         @opts[:final_exec].each do |e|
+          puts e if @console
+          @log << e
+
           io_log e
         end
       end
