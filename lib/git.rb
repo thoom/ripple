@@ -44,7 +44,10 @@ module Ripple
         backups.sort!
         extra = backups.length - @opts[:backups]
         backups.slice(0...extra).each do |b|
-          puts "Deleted: #{ b }"
+          msg = "Deleted: #{ b }"
+          puts msg if @console
+          @log << msg + "\n"
+
           FileUtils.rm_r b
         end
       end
@@ -61,6 +64,7 @@ module Ripple
     end
 
     def post_process(temp_dir)
+      Dir.chdir temp_dir
       io_log "git pull #{ @opts[:git][:remote] } #{ @opts[:git][:branch] }"
 
       # For PHP projects using composer
@@ -90,8 +94,6 @@ module Ripple
         @log << msg + "\n"
 
         @opts[:post_exec].each do |e|
-          Dir.chdir @backup_dir
-
           puts e if @console
           @log << e + "\n"
 
