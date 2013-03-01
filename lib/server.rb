@@ -46,6 +46,6 @@ module Ripple
       "Sorry, an error occurred:\n" + env['sinatra.error'].name
     end
 
-    run! if app_file == $0
+    run! if __FILE__ == $0
   end
 end

@@ -1,9 +1,7 @@
 Ripple
 ======
 
-__NOTE: Ripple is still currently under active development, while I migrate existing functionality from Giply__
-
-Rippls is a git-based deployment server written in Ruby. This server is meant as a more robust replacement for the [Giply](http://github.com/thoom/giply-server)
+Ripple is a git-based deployment server written in Ruby. This server is meant as a more robust replacement for the [Giply](http://github.com/thoom/giply-server)
 server. It is built on Sinatra and will update Git projects. It provides additional functionality for projects built in both Ruby
 (updating dependencies using [Bundler](http://gembundler.com)) and PHP (updating dependencies using [Composer](https://getcomposer.org)).
 
@@ -63,14 +61,14 @@ Assumptions
     any of the *post_exec* scripts access to the payload data for processing.
 
  4. Any project that you want to have updated by Ripple needs to have its git repo initialized and origin added. Connecting to the
-    repository using SSH means that you also need to make sure that the web user running Ripple has the SSH key to connect
+    repository using SSH means that you also need to make sure that the user running Ripple has the SSH key to connect
     to the server. As an example:
 
-        sudo su www-data
+        sudo su deploy
         console --init mysite (it will prompt you for various data it needs)
 
     If you get an error pulling the origin, it probably means that the SSH key is missing or not approved to access the repo.
-    However, if you can successfully pull the origin using your web user (like `www-data`), Ripple should work fine.
+    However, if you can successfully pull the origin using your user (like `deploy`), Ripple should work fine.
 
 Installation
 ------------
@@ -79,13 +77,13 @@ Installation
 
  1. Ruby and Gem installed : `sudo apt-get install make ruby1.9.3 build-essential libcurl4-openssl-dev zlib1g-dev`.
  2. Bundler installed: `sudo gem install bundle`.
- 3. Web user has sudo access to bundle (i.e. in a sudoers.d file):
+ 3. User has sudo access to bundle (i.e. in a sudoers.d file):
 
         Cmnd_Alias RIPPLEBUNDLE=/usr/local/bin/bundle
-        www-data ALL=NOPASSWD: RIPPLEBUNDLE
+        deploy ALL=NOPASSWD: RIPPLEBUNDLE
 
 ### Ripple installer
- 1. Log in as your web user: i.e. `sudo su - www-data`.
+ 1. Log in as your user: i.e. `sudo su - deploy`.
  2. To install, first just check out the code to the directory of your choice. I use something like */var/www/deploy*.
 
         git init
@@ -95,7 +93,6 @@ Installation
  3. Run the install script using `console --self-update`.
  4. Now, anytime you want to update to the latest version, just run:
 
-	    git pull origin master
 	    console --self-update
 
  5. Depending on your server, you may need to restart it.

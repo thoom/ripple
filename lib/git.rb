@@ -4,8 +4,6 @@ require 'tempfile'
 
 module Ripple
   class Git
-    @directory, @opts, @log, @console, @backup_prefix = nil
-
     def initialize(directory, opts)
       @directory = directory
       @opts      = opts

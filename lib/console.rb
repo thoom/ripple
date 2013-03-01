@@ -4,10 +4,10 @@ require_relative 'git'
 
 module Ripple
   class Console
-    @args, @project_dir, @project_name = nil
-
     def initialize(args)
       @args = args
+      @project_name = nil
+      @project_dir = nil
     end
 
     def self_config
