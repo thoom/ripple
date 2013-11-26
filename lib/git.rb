@@ -1,6 +1,7 @@
 require 'net/http'
 require 'fileutils'
 require 'tempfile'
+require 'open4'
 
 module Ripple
   class Git
@@ -123,13 +124,24 @@ module Ripple
     end
 
     def io_log(command)
-      io = IO.popen "#{ command }"
-      while (line = io.gets)
+      pid, stdin, stdout, sterr = Open4::popen4('/bin/sh')
+
+      stdin.puts command
+      stdin.close
+
+      while (line = stdout.gets)
         puts line if @console
 
         @log << line
       end
-      io.close
+      
+      #io = IO.popen "#{ command }"
+      #while (line = io.gets)
+        #puts line if @console
+
+        #@log << line
+      #end
+      #io.close
     end
 
     def save_log(filename)
